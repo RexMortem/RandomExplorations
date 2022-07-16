@@ -5,6 +5,24 @@
 	Provided the proof for the Josephus problem. 
 	Wrote the bruteforce before watching the entire video, 
 	and wrote the proof-based after the key points were delivered. 
+
+	To summarise the proof:
+	- First, establish conjecture that for inputs of n that are a power of 2, the output will always be 1.
+
+	- Prove this pattern, and the rest will fall: 
+	Powers of 2 are always even. Therefore, in the first pass, all the even values are removed. Half the values are gone.
+	Consider n = 8; 2, 4, 6, 8 are eliminated and then the next killer is 1. This is the same as the starting value!
+	So, after the first pass, the starting value is the same and the first pass is under the conditions that there are an even number of values.
+	Because it is a power of 2, after the total is halved, it is still an even number (unless it reaches n = 1 in which case 1 is the winner)
+	Therefore even -> even -> even -> 1 so therefore for powers of 2, the output will always be 1.
+
+	- For some value (power of n) + x: 
+	We know that when there is a (power of n) number left, the winner is the same as the starting value. 
+	Therefore, we simply need to go through until we get to a (power of n) number left then the winner is the value we land on.
+	Therefore, since our value is expressed as (power of n) + x, we must eliminate x values before we find our winner.
+	If we eliminate one value (1 eliminates 2) then we land on 3 and therefore this is our winner for x = 1 
+	for x = 2, (1 eliminates 2, 3 eliminates 4) then we land on 5 and this is our winner for x = 2
+	winner = 1 + 2x
 --]]
 
 local function FindNextIndex(Table, StartIndex)

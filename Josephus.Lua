@@ -65,6 +65,66 @@ local function JosephusBruteForce(n)
 	return MembersAlive[1]
 end
 
+
+local function ConvertToBinary(n)
+	local BinaryString = "1"
+	
+	local GreatestPowerOf2 = 0
+	local GreatestPowerResult = 1
+	
+	while GreatestPowerResult <= n do
+		GreatestPowerOf2 += 1
+		GreatestPowerResult = math.pow(2, GreatestPowerOf2)
+	end
+	
+	GreatestPowerOf2 -= 1 
+	GreatestPowerResult /= 2
+	
+	n -= GreatestPowerResult
+	
+	for i = GreatestPowerOf2-1, 0, -1 do
+		if n == 0 then 
+			BinaryString ..= "0"
+			continue
+		end
+		
+		local Value = math.pow(2, i)
+		
+		if Value <= n then
+			n -= Value
+			BinaryString ..= "1"
+		else
+			BinaryString ..= "0"
+		end
+	end
+	
+	return BinaryString
+end
+
+local function ConvertFromBinary(BinaryString)
+	local Sum = 0
+	
+	for i = 1,#BinaryString do
+		local Char = string.sub(BinaryString, i, i)
+		
+		if Char == "1" then
+			Sum += math.pow(2, #BinaryString - i)
+		end
+	end
+	
+	return Sum
+end
+
+local function JosephusBinaryTrick(n)
+	local BinaryNum = ConvertToBinary(n)
+	
+	local LeadingDigit = string.sub(BinaryNum, 1, 1)
+	BinaryNum = string.sub(BinaryNum, 2, #BinaryNum) -- cutting off lead digit
+	BinaryNum ..= LeadingDigit -- adding lead digit back at end
+	
+	return ConvertFromBinary(BinaryNum)
+end
+
 local function Josephus(n)
 	--[[
 		if we cared about speed, we would use a loop and powers of 2 

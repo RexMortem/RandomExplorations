@@ -35,6 +35,8 @@ that it contains the questions that the Player has been asked. If questions aren
 
 5) Inconsistent capitalising is a minor thing but could be improved I guess
 
+Fourth draft: Attempt to generalise to undivisible numbers
+Need to fix it; rare edge-case where it is 7 7 6 7 for example
 
 --]]
 for d = 1,50 do
@@ -67,6 +69,8 @@ for d = 1,50 do
 		"Adam",
 		"Alistair",
 		"Alex",
+		"Bob",
+		"Smellinov"
 	}
 	
 	--[[
@@ -186,6 +190,7 @@ for d = 1,50 do
 	end
 	
 	local QuestionUpperLimit = math.ceil(#Players/#Questions)
+	local TotalQuestionUpperLimit = math.ceil((#Players * Generations)/#Questions)
 	
 	for Generation = 1, Generations do
 		QuestionCounts[Generation] = {}
@@ -208,7 +213,7 @@ for d = 1,50 do
 		
 		while #TempPlayerList > 0 do
 			local Question = Questions[qi]
-			if QuestionCounts[Generation][Question] >= QuestionUpperLimit then 
+			if (QuestionCounts[Generation][Question] >= QuestionUpperLimit) or (QuestionCountsRunningTotal[Question] >= TotalQuestionUpperLimit) then 
 				qi = (qi % #Questions) + 1 
 				continue
 			end
@@ -251,9 +256,9 @@ for d = 1,50 do
 			
 			local QuestionsLeft = {}
 			
-			for question, count in next,QuestionCounts[Generation] do
-				if count < QuestionUpperLimit then
-					table.insert(QuestionsLeft, question)
+			for Question, count in next,QuestionCounts[Generation] do
+				if (count < QuestionUpperLimit) and (QuestionCountsRunningTotal[Question] < TotalQuestionUpperLimit) then
+					table.insert(QuestionsLeft, Question)
 				end
 			end
 			local qi = 1
@@ -286,7 +291,7 @@ for d = 1,50 do
 					if Swapped then break end
 				end
 				
-				if QuestionCountTable[Question] >= QuestionUpperLimit then
+				if (QuestionCountTable[Question] >= QuestionUpperLimit) or (QuestionCountsRunningTotal[Question] >= TotalQuestionUpperLimit) then
 					table.remove(QuestionsLeft, qi)
 					continue
 				end
@@ -330,15 +335,12 @@ for d = 1,50 do
 		--]]
 	end
 	
-	--[[
 	for i,v in next,QuestionCounts do
 		for questionNumber,value in next, v do
 			print("QuestionCount:", questionNumber, value)
 		end
 	end
 
-	--[[
-	]]
 	print("total: ", BetterConcat(QuestionCountsRunningTotal, " "))
 
 	print("\n")

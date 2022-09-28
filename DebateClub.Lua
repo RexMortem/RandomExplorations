@@ -16,8 +16,27 @@ Should we remove swapped players from the pool though?
 I have realised that my code often becomes messy and unrecognisable to myself; the whitespace is good, but the variable names and processes get confusing. 
 I need to think of some conventions for naming I think
 Or maybe just use a better colour scheme because it looks more readable in github editor lol
---]]
 
+Third draft: Nailed it; it works for this case, just need to run it for some general cases and do some checks for other cases. 
+Also, we don't have a heuristic for deciding which swaps are beneficial or not; just making iterative steps that can be made
+and which seem to be beneficial 
+
+For 1) running total didn't need to be tracked
+we can calculate that afterwards using a for loop and it just clutters the main algorithm
+
+2) FindSubsetWhoAsked wasn't entirely decoupled from the algorithm which means that it relied on values such as PlayerTable. 
+It also relied on an argument from the algorithm which was formatted as a table with values {value, index} 
+This meant that for a future calling outside of that, I had to add bloating by casing my indexes in new tables 
+
+3) The whole data structuring is a bit confusing; replace PlayerTable with PlayerQuestionList in order to make it clear 
+that it contains the questions that the Player has been asked. If questions aren't the only thing, then even PlayerData would be better
+
+4) CheckForValidity is an ambiguous name 
+
+5) Inconsistent capitalising is a minor thing but could be improved I guess
+
+
+--]]
 for d = 1,50 do
 	local Generations = 2
 
@@ -145,10 +164,15 @@ for d = 1,50 do
 	end
 	
 	local function CheckForValidity(Question, Player)
+		local QuestionList = PlayerTable[Player[2]]
 		
+		if not Find(QuestionList, Question) then
+			return true
+		end
 	end
 	
 	local function Swap(Player1, Player2, Question)
+		print("swap")
 		table.insert(Player1, Player2[#Player2])
 		Player2[#Player2] = Question
 	end
@@ -242,16 +266,24 @@ for d = 1,50 do
 				print("last swap count", #LastSwaps, #QuestionsLeft)
 				local PossibleSwappers = FindSubsetWhoCanBeAsked(Question, LastSwaps)
 				
+				local Swapped = false
+				
 				for _,PossibleSwapper in next, PossibleSwappers do
-					local PossibleSwapperData = PlayerTable[PossibleSwapper[2]]
+					local PossibleSwapperData = PlayerTable[PossibleSwapper]
 					local LatestQuestion = PossibleSwapperData[#PossibleSwapperData]
 					
 					for i,PossiblePlayer in next, TempPlayerList do
-						if CheckForValidity(PossiblePlayer, LatestQuestion) then
-							Swap(PossiblePlayer, PossibleSwapper, Question)
+						if CheckForValidity(LatestQuestion, PossiblePlayer) then
+							Swap(PlayerTable[PossiblePlayer[2]], PlayerTable[PossibleSwapper], Question)
 							QuestionCountTable[Question] = QuestionCountTable[Question] + 1
+							QuestionCountsRunningTotal[Question] = QuestionCountsRunningTotal[Question] + 1
+							
+							Swapped = true
+							if Swapped then break end
 						end
 					end
+					
+					if Swapped then break end
 				end
 				
 				if QuestionCountTable[Question] >= QuestionUpperLimit then
@@ -297,20 +329,25 @@ for d = 1,50 do
 		end
 		--]]
 	end
-
+	
+	--[[
 	for i,v in next,QuestionCounts do
 		for questionNumber,value in next, v do
-			print(questionNumber, value)
+			print("QuestionCount:", questionNumber, value)
 		end
 	end
 
+	--[[
+	]]
 	print("total: ", BetterConcat(QuestionCountsRunningTotal, " "))
 
 	print("\n")
 	
+	--[[
 	for i,v in next,PlayerTable do
 		print(i, BetterConcat(v, " "))
 	end
-
+	--]]
+	
 	task.wait()
 end

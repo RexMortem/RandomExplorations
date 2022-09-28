@@ -37,7 +37,7 @@ that it contains the questions that the Player has been asked. If questions aren
 
 Fourth draft: Attempt to generalise to undivisible numbers
 Need to fix it; rare edge-case where it is 7 7 6 7 for example
-
+Also need to check whether I am including total question checks where only necessary
 --]]
 for d = 1,50 do
 	local Generations = 2

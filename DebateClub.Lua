@@ -27,6 +27,15 @@ we can calculate that afterwards using a for loop and it just clutters the main 
 2) FindSubsetWhoAsked wasn't entirely decoupled from the algorithm which means that it relied on values such as PlayerTable. 
 It also relied on an argument from the algorithm which was formatted as a table with values {value, index} 
 This meant that for a future calling outside of that, I had to add bloating by casing my indexes in new tables 
+Edit: I have since learned that this would not be what is called a pure function if properly decoupled and not dependent upon external state
+
+Pure Function - given an input, produces an output. Given an identical input, produces the same output. Produces no side-effects. 
+The produce no side-effects typically translates to not depending upon external state
+I would argue that it does not mutate the external state (therefore no side-effects) however some sites seem to agree 
+that depending upon external state makes it impure
+
+The best explanation I have seen is that if the external state is no longer available then of course the function will not work
+This non-functionality is classed as a side-effect 
 
 3) The whole data structuring is a bit confusing; replace PlayerTable with PlayerQuestionList in order to make it clear 
 that it contains the questions that the Player has been asked. If questions aren't the only thing, then even PlayerData would be better

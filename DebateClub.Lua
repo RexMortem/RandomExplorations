@@ -47,10 +47,17 @@ that it contains the questions that the Player has been asked. If questions aren
 Fourth draft: Attempt to generalise to undivisible numbers
 Need to fix it; rare edge-case where it is 7 7 6 7 for example
 Also need to check whether I am including total question checks where only necessary
---]]
-for d = 1,50 do
-	local Generations = 2
 
+Fifth Draft: Fixed an indexing issue where I was using the wrong index and therefore the algorithm broke
+Added ensurance value 
+The higher the ensurance, the more latest values we check for swapping
+So the higher the ensurance, the more computation but the more accurate the algorithm
+An ensurance of 0 works perfectly for 2 generations and player counts which are divisible by the number of questions
+The algorithm is complete
+--]]
+for d = 1,300 do
+	local Generations = 2
+	local Ensurance = 1 -- accuracy 
 	local PlayerTable = {}
 	local QuestionCounts = {
 	} -- generation 1 first, then generation 2 etc.
@@ -222,7 +229,7 @@ for d = 1,50 do
 		
 		while #TempPlayerList > 0 do
 			local Question = Questions[qi]
-			if (QuestionCounts[Generation][Question] >= QuestionUpperLimit) or (QuestionCountsRunningTotal[Question] >= TotalQuestionUpperLimit) then 
+			if (QuestionCounts[Generation][Question] >= QuestionUpperLimit) or (QuestionCountsRunningTotal[Question] >= TotalQuestionUpperLimit) then -- this completes the algorithm 
 				qi = (qi % #Questions) + 1 
 				continue
 			end
@@ -253,7 +260,7 @@ for d = 1,50 do
 			
 			-- for the last iteration of 4, record for optimal permutations 
 
-			if (QuestionCounts[Generation][Question] == QuestionUpperLimit) then
+			if (QuestionCounts[Generation][Question] >= (QuestionUpperLimit - Ensurance)) then
 				table.insert(LastSwaps, {Players[SelectedPlayerIndex],SelectedPlayerIndex})
 			end
 			
@@ -261,8 +268,6 @@ for d = 1,50 do
 		end
 		
 		if Failed then -- have to do swaps 
-			print("Failure")
-			
 			local QuestionsLeft = {}
 			
 			for Question, count in next,QuestionCounts[Generation] do
@@ -274,15 +279,19 @@ for d = 1,50 do
 			
 			local QuestionCountTable = QuestionCounts[Generation]
 			
+			local dn = 0
+			
+			-- LastSwaps : {{PlayerName, PlayerIndex},{}}
 			while #QuestionsLeft > 0 do
 				local Question = QuestionsLeft[qi]
 				
-				print("last swap count", #LastSwaps, #QuestionsLeft)
-				local PossibleSwappers = FindSubsetWhoCanBeAsked(Question, LastSwaps)
+				local PossibleSwapperIndexes = FindSubsetWhoCanBeAsked(Question, LastSwaps)
+				--these PossibleSwappers are indexes for LastSwaps
 				
 				local Swapped = false
 				
-				for _,PossibleSwapper in next, PossibleSwappers do
+				for _,PossibleSwapperIndex in next, PossibleSwapperIndexes do
+					local PossibleSwapper = LastSwaps[PossibleSwapperIndex][2]
 					local PossibleSwapperData = PlayerTable[PossibleSwapper]
 					local LatestQuestion = PossibleSwapperData[#PossibleSwapperData]
 					
@@ -293,21 +302,39 @@ for d = 1,50 do
 							QuestionCountsRunningTotal[Question] = QuestionCountsRunningTotal[Question] + 1
 							
 							Swapped = true
-							if Swapped then break end
+							break
 						end
 					end
 					
 					if Swapped then break end
 				end
 				
-				if (QuestionCountTable[Question] >= QuestionUpperLimit) or (QuestionCountsRunningTotal[Question] >= TotalQuestionUpperLimit) then
+				if (QuestionCountTable[Question] >= QuestionUpperLimit) then --or (QuestionCountsRunningTotal[Question] >= TotalQuestionUpperLimit) then
 					table.remove(QuestionsLeft, qi)
 					continue
 				end
 				
-				if qi == #QuestionsLeft then
+				dn = dn + 1
+				
+				if dn > 50 then
+					print("FUDGE")
+					
+					for i,v in next, QuestionsLeft do
+						print("q", v, QuestionCounts[Generation][v])
+					end
+					
+					for i,v in next, TempPlayerList do
+						print("tp", v[1], BetterConcat(PlayerTable[v[2]], " "))
+					end
+					
+					for i,v in next, LastSwaps do
+						print("p", v[1], BetterConcat(PlayerTable[v[2]], " "))
+					end
+
+					task.wait()
 					break
 				end
+				
 				qi = (qi % #QuestionsLeft) + 1
 			end
 		end
@@ -349,16 +376,15 @@ for d = 1,50 do
 			print("QuestionCount:", questionNumber, value)
 		end
 	end
+	
 
 	print("total: ", BetterConcat(QuestionCountsRunningTotal, " "))
 
 	print("\n")
 	
-	--[[
 	for i,v in next,PlayerTable do
 		print(i, BetterConcat(v, " "))
 	end
-	--]]
 	
 	task.wait()
 end

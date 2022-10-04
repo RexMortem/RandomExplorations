@@ -54,6 +54,9 @@ The higher the ensurance, the more latest values we check for swapping
 So the higher the ensurance, the more computation but the more accurate the algorithm
 An ensurance of 0 works perfectly for 2 generations and player counts which are divisible by the number of questions
 The algorithm is complete
+
+Another slight issue is that, with odd n of players, it will tend to give 6 8 8 8 for the question distribution instead of 7 7 8 8 
+In terms of the debate club, this doesn't really matter because each round (with either of these) will have a group of 3 which isn't bad 
 --]]
 for d = 1,300 do
 	local Generations = 2

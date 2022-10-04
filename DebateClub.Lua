@@ -57,6 +57,7 @@ The algorithm is complete
 
 Another slight issue is that, with odd n of players, it will tend to give 6 8 8 8 for the question distribution instead of 7 7 8 8 
 In terms of the debate club, this doesn't really matter because each round (with either of these) will have a group of 3 which isn't bad 
+To change the implementation, we could add more stuff for checking using total running total 
 --]]
 for d = 1,300 do
 	local Generations = 2

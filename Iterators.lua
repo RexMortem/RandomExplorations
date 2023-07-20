@@ -86,3 +86,19 @@ end, next, {
 GenericFor(function(i,v)
 	print("Stateless generic: ", i, v)
 end, StatefulNumericIterator({1,2,3}))
+
+local function Iterator3D(InvariantState, i)
+	i += 1
+	
+	local z = ((i-1) % InvariantState[3]) + 1 
+	local x = math.ceil(i / (InvariantState[2] * InvariantState[3]))
+	local y = math.ceil((((i-1) % (InvariantState[2] * InvariantState[3])) + 1) / InvariantState[3]) 
+		
+	if x <= InvariantState[1] then
+		return i,x,y,z
+	end
+end
+
+for i,x,y,z in Iterator3D, {3,3,3},0 do
+	print("xyz:",x,y,z)
+end
